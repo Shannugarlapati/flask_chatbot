@@ -71,4 +71,4 @@ Endpoint	Method	Description
 /chat	POST	Process messages ({message: string, model: string})
 
 <img src="" alt="Chatbot UI" width="300"/>
-<img src="" alt="Chatbot UI" width="300"/>
+<img src="flask-chatbot/image2.jpg" alt="Chatbot UI" width="300"/>
