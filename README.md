@@ -1,16 +1,6 @@
 <h1>Nexus AI Chatbot 🤖💬</h1>
-https://demo.gif Example: Nexus in dark mode with animated interface
 
-Table of Contents
-Features
 
-Tech Stack
-
-Installation
-
-Configuration
-
-API Reference
 
 
 
