@@ -1,0 +1,352 @@
+/* styles.css */
+:root {
+    /* Light Mode Colors */
+    --bg-primary: #f5f5f5;
+    --bg-secondary: white;
+    --text-primary: #333;
+    --text-secondary: #666;
+    --border-color: #ddd;
+    --user-bubble: #4a8cff;
+    --bot-bubble: white;
+    --bot-border: #e1e1e1;
+    --code-bg: #f8f8f8;
+    --shadow-color: rgba(0,0,0,0.1);
+    --accent-color: #4a8cff;
+}
+
+[data-theme="dark"] {
+    /* Dark Mode Colors */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #f0f0f0;
+    --text-secondary: #aaa;
+    --border-color: #444;
+    --user-bubble: #3a7cff;
+    --bot-bubble: #3d3d3d;
+    --bot-border: #444;
+    --code-bg: #252525;
+    --shadow-color: rgba(0,0,0,0.3);
+}
+
+/* Base Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Chat Container */
+#chat-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+    height: 70vh;
+    overflow-y: auto;
+    padding: 15px;
+    background-color: var(--bg-secondary);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px var(--shadow-color);
+}
+
+/* Message Bubbles */
+.user-message {
+    align-self: flex-end;
+    background: var(--user-bubble);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 18px 18px 0 18px;
+    max-width: 75%;
+    word-wrap: break-word;
+    box-shadow: 0 1px 3px var(--shadow-color);
+    animation: slideInRight 0.3s ease-out;
+}
+
+.bot-message {
+    align-self: flex-start;
+    background: var(--bot-bubble);
+    color: var(--text-primary);
+    padding: 12px 16px;
+    border-radius: 18px 18px 18px 0;
+    max-width: 75%;
+    word-wrap: break-word;
+    border: 1px solid var(--bot-border);
+    box-shadow: 0 1px 3px var(--shadow-color);
+    animation: slideInLeft 0.3s ease-out;
+}
+
+/* Input Area */
+#input-area {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+#message-input {
+    flex-grow: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    font-size: 16px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: all 0.3s;
+}
+
+#message-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(74, 140, 255, 0.2);
+}
+
+button {
+    padding: 12px 24px;
+    background: var(--user-bubble);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease, transform 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(74, 140, 255, 0.4);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: 0.5s;
+}
+
+button:hover::after {
+    left: 100%;
+}
+
+/* Typing Indicator */
+.typing-indicator {
+    align-self: flex-start;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+.typing-indicator::after {
+    content: '...';
+    display: inline-block;
+    width: 0;
+    animation: typingDots 1.5s infinite;
+}
+
+/* Model Selector */
+.model-selector {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: all 0.3s;
+}
+
+.model-info {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+.message-model {
+    font-size: 0.7em;
+    color: var(--text-secondary);
+    margin-top: 5px;
+    text-align: right;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--accent-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.toggle-label {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+/* Animations */
+@keyframes gradientPulse {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes textGlow {
+    0%, 100% { text-shadow: 0 0 8px rgba(74, 140, 255, 0.5); }
+    50% { text-shadow: 0 0 16px rgba(74, 140, 255, 0.8); }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(30px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-30px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes typingDots {
+    0% { width: 0; content: ''; }
+    33% { width: 1em; content: '.'; }
+    66% { width: 2em; content: '..'; }
+    100% { width: 3em; content: '...'; }
+}
+
+/* Title Styles */
+h1 {
+    /* Replace any existing color/gradient with this solid blue */
+    color: #4a8cff; /* This matches the send button blue */
+    text-shadow: 0 2px 4px rgba(74, 140, 255, 0.3);
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+/* Or if you're using a gradient, modify to blue-based gradient */
+h1.gradient-title {
+    background: linear-gradient(90deg, #4a8cff, #3a7cff, #4a8cff);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: gradientPulse 6s ease infinite;
+}
+
+h1:hover {
+    animation: gradientPulse 3s ease infinite, textGlow 2s ease infinite;
+    transform: scale(1.02);
+}
+
+/* Code Blocks */
+.bot-message pre {
+    background-color: var(--code-bg);
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+.bot-message code {
+    font-family: 'Courier New', monospace;
+    background-color: var(--code-bg);
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+/* Particles Background */
+#particles-js {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    opacity: 0.15;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+        margin-top: 40px;
+    }
+    
+    .theme-toggle {
+        top: 15px;
+        right: 15px;
+    }
+    
+    #chat-container {
+        height: 65vh;
+    }
+}

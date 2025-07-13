@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus AI Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Background particles container -->
+    <div id="particles-js"></div>
+
+    <header class="app-header">
+        <div class="theme-toggle">
+            <span class="toggle-label">Dark Mode</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <h1 class="app-title">
+            <i class="fas fa-robot"></i>
+            <span class="title-text">Nexus: The AI Hub for Human Conversations</span>
+            <span class="title-pulse"></span>
+        </h1>
+    </header>
+
+    <main class="app-container">
+        <div class="model-selector">
+            <label for="model-select">Model:</label>
+            <select id="model-select">
+                {% for key, model in models.items() %}
+                    <option value="{{ key }}" {% if key == 'sonnet' %}selected{% endif %}>
+                        {{ key|title }} - {{ model.description }}
+                    </option>
+                {% endfor %}
+            </select>
+            <span class="model-info" id="model-info">Balanced speed and intelligence</span>
+        </div>
+        
+        <div id="chat-container"></div>
+        
+        <div id="input-area">
+            <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off">
+            <button id="send-button" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i> Send
+            </button>
+            <button id="clear-button" class="secondary" onclick="clearChat()">
+                <i class="fas fa-trash-alt"></i> Clear
+            </button>
+        </div>
+    </main>
+
+    <div class="app-footer">
+        <p>Nexus AI Chatbot © 2023 | Powered by OpenRouter</p>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Initialize particles.js
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enhanced particles configuration
+            particlesJS("particles-js", {
+                "particles": {
+                    "number": { 
+                        "value": 80, 
+                        "density": { 
+                            "enable": true, 
+                            "value_area": 800 
+                        } 
+                    },
+                    "color": { 
+                        "value": "#4a8cff" 
+                    },
+                    "shape": { 
+                        "type": "circle",
+                        "stroke": {
+                            "width": 0,
+                            "color": "#000000"
+                        }
+                    },
+                    "opacity": {
+                        "value": 0.5,
+                        "random": true,
+                        "anim": {
+                            "enable": true,
+                            "speed": 1,
+                            "opacity_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true,
+                        "anim": {
+                            "enable": true,
+                            "speed": 2,
+                            "size_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#4a8cff",
+                        "opacity": 0.3,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2,
+                        "direction": "none",
+                        "random": true,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false,
+                        "attract": {
+                            "enable": true,
+                            "rotateX": 600,
+                            "rotateY": 1200
+                        }
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "repulse"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    },
+                    "modes": {
+                        "repulse": {
+                            "distance": 100,
+                            "duration": 0.4
+                        },
+                        "push": {
+                            "particles_nb": 4
+                        }
+                    }
+                },
+                "retina_detect": true
+            });
+
+            // Initialize with welcome message
+            setTimeout(() => {
+                addMessage("Hello! I'm your Nexus AI assistant. How can I help you today?", false, "system");
+            }, 500);
+        });
+
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        
+        // Apply saved theme
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        themeToggle.checked = currentTheme === 'dark';
+        updateToggleLabel();
+        
+        themeToggle.addEventListener('change', function() {
+            const newTheme = this.checked ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateToggleLabel();
+            showNotification(`Switched to ${newTheme} mode`);
+        });
+        
+        function updateToggleLabel() {
+            const label = document.querySelector('.toggle-label');
+            label.textContent = themeToggle.checked ? 'Light Mode' : 'Dark Mode';
+        }
+
+        // Model Selector
+        document.getElementById('model-select').addEventListener('change', function() {
+            const models = {
+                haiku: "Fast and efficient",
+                sonnet: "Balanced speed and intelligence (recommended)",
+                opus: "Most powerful but slower"
+            };
+            document.getElementById('model-info').textContent = models[this.value];
+            showNotification(`Model changed to ${this.value.toUpperCase()}`);
+        });
+
+        // Chat Functions
+        function addMessage(content, isUser, modelUsed = null) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUser ? 'user-message' : 'bot-message';
+            
+            // Create message avatar
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = `<i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i>`;
+            
+            // Create message content
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            // Format message content (basic markdown support)
+            let formattedContent = content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/```([\s\S]*?)```/g, '<pre>$1</pre>')
+                .replace(/`(.*?)`/g, '<code>$1</code>')
+                .replace(/\n/g, '<br>');
+            
+            contentDiv.innerHTML = formattedContent;
+            
+            // Add timestamp
+            const timestamp = document.createElement('div');
+            timestamp.className = 'message-timestamp';
+            timestamp.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            // Assemble message
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(contentDiv);
+            messageDiv.appendChild(timestamp);
+            
+            // Add model info if bot message
+            if (!isUser && modelUsed && modelUsed !== 'system') {
+                const modelDiv = document.createElement('div');
+                modelDiv.className = 'message-model';
+                modelDiv.textContent = `Generated by ${modelUsed}`;
+                messageDiv.appendChild(modelDiv);
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // Add animation class
+            messageDiv.classList.add(isUser ? 'message-enter-right' : 'message-enter-left');
+            
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                messageDiv.classList.remove(isUser ? 'message-enter-right' : 'message-enter-left');
+            }, 500);
+        }
+
+        function showTyping() {
+            const chatContainer = document.getElementById('chat-container');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typing-indicator';
+            
+            typingDiv.innerHTML = `
+                <div class="typing-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="typing-content">
+                    <span class="typing-text">Assistant is typing</span>
+                    <span class="typing-dots"></span>
+                </div>
+            `;
+            
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typingDiv = document.getElementById('typing-indicator');
+            if (typingDiv) typingDiv.remove();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            const model = document.getElementById('model-select').value;
+            
+            if (message) {
+                addMessage(message, true);
+                input.value = '';
+                showTyping();
+                
+                try {
+                    const response = await fetch('/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            model: model
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    hideTyping();
+                    
+                    if (data.response) {
+                        addMessage(data.response, false, data.model_used);
+                    } else if (data.error) {
+                        addMessage(`Error: ${data.error}`, false);
+                    }
+                } catch (error) {
+                    hideTyping();
+                    addMessage('Failed to get response. Please try again.', false);
+                }
+            }
+        }
+
+        function clearChat() {
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.innerHTML = '';
+            showNotification('Chat history cleared');
+            addMessage("Hello again! What would you like to discuss now?", false, "system");
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Event Listeners
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        document.getElementById('message-input').focus();
+    </script>
+</body>
+</html>
