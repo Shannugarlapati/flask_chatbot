@@ -31,7 +31,7 @@ OpenRouter API key (get one here)
 Setup
 bash
 # Clone repo
-git clone https://github.com/yourusername/nexus-chatbot.git
+git clone https://github.com/shannugarlapati/nexus-chatbot.git
 
 cd nexus-chatbot
 
